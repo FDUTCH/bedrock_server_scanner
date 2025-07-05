@@ -36,9 +36,8 @@ func NewLogWindow(name string) *widget.TextGrid {
 	logGrid.ShowWhitespace = true
 
 	w := fyne.CurrentApp().NewWindow(name)
-	w.Resize(fyne.NewSize(400, 300))
+
 	w.SetContent(logGrid)
-	w.SetFixedSize(true)
 	w.Show()
 	return logGrid
 }
