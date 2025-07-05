@@ -18,7 +18,7 @@ func NewSourceFileGenerator(w fyne.Window) fyne.CanvasObject {
 	asNumberEntry.Validator = verifyASNumber
 
 	outputFileEntry := widget.NewEntry()
-	outputFileEntry.PlaceHolder = "out.txt"
+	outputFileEntry.PlaceHolder = "ranges.txt"
 
 	generateActivity := widget.NewActivity()
 	generateActivity.Hide()
