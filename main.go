@@ -9,6 +9,7 @@ import (
 func main() {
 	if len(os.Args) > 1 {
 		cli.Run()
+		return
 	}
 	gui.Run()
 }
