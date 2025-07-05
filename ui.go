@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/FDUTCH/bedrock_scanner/scanner"
-	"unicode"
 )
 
 func AddMainContents(w fyne.Window) {
@@ -32,8 +30,8 @@ func NewSettingsScreen(w fyne.Window) fyne.CanvasObject {
 
 func NewLogWindow(name string) *widget.TextGrid {
 	logGrid := widget.NewTextGrid()
-	logGrid.Scroll = fyne.ScrollVerticalOnly
 	logGrid.ShowWhitespace = true
+	logGrid.Scroll = fyne.ScrollBoth
 
 	w := fyne.CurrentApp().NewWindow(name)
 
@@ -42,11 +40,5 @@ func NewLogWindow(name string) *widget.TextGrid {
 	return logGrid
 }
 
-func checkNumber(s string) error {
-	for _, char := range s {
-		if !unicode.IsNumber(char) {
-			return fmt.Errorf("should contain only numbers")
-		}
-	}
-	return nil
+type name struct {
 }
