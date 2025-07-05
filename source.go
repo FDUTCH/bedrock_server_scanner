@@ -18,6 +18,7 @@ func NewSourceSelector(settings *scanner.Settings, w fyne.Window) fyne.CanvasObj
 
 	box := container.NewGridWithColumns(2,
 		sourceEntry, newFileSelector("select a source file", w, settings, sourceEntry),
+		widget.NewLabel("source"), widget.NewLabel("file selector"),
 	)
 
 	return box

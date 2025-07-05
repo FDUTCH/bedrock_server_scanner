@@ -10,21 +10,31 @@ import (
 )
 
 func NewPerformanceSetup(settings *scanner.Settings) fyne.CanvasObject {
-	numCpu := float64(runtime.NumCPU())
-	maxPPS := numCpu * 10000
+	var (
+		numCpu               = float64(runtime.NumCPU())
+		maxPPS               = numCpu * 10000
+		socketsCount float64 = 1
+		packetsMin   float64 = 1000
+	)
 
-	packetsSlider := widget.NewSlider(1000, maxPPS)
-	packetsSlider.Step = 1000
+	settings.Sockets = int(socketsCount)
+	settings.PacketsPerSecond = int(packetsMin)
+
+	packetsSlider := widget.NewSlider(packetsMin, maxPPS)
+	packetsSlider.Step = packetsMin
 	packetsLabel := widget.NewLabel("packets per second: 1000")
 
-	socketsSlider := widget.NewSlider(1, max(float64(runtime.NumCPU())/2, 1))
-	var socketsSliderStep float64 = 1
-	socketsSlider.Step = socketsSliderStep
-	socketsLabel := widget.NewLabel("socket count: 1")
+	socketsSlider := widget.NewSlider(socketsCount, max(float64(runtime.NumCPU())/2, 1))
+	socketsSlider.Step = socketsCount
+	socketsLabel := widget.NewLabel(fmt.Sprintf("socket count: %d", int(socketsCount)))
 
 	packetsSlider.OnChanged = func(f float64) {
 		settings.PacketsPerSecond = int(f)
-		packetsLabel.SetText(fmt.Sprintf("packets per second: %d", settings.PacketsPerSecond))
+		if f >= maxPPS {
+			packetsLabel.SetText("unlimited")
+		} else {
+			packetsLabel.SetText(fmt.Sprintf("packets per second: %d", settings.PacketsPerSecond))
+		}
 		settings.NoPPSLimit = f >= maxPPS
 	}
 
@@ -32,11 +42,11 @@ func NewPerformanceSetup(settings *scanner.Settings) fyne.CanvasObject {
 		settings.Sockets = int(f)
 		socketsLabel.SetText(fmt.Sprintf("socket count: %d", settings.Sockets))
 
-		packetsSlider.SetValue(min(packetsSlider.Value/socketsSliderStep*f, maxPPS))
+		packetsSlider.SetValue(min(packetsSlider.Value/socketsCount*f, maxPPS))
 		if packetsSlider.Value < f {
 			packetsSlider.SetValue(f)
 		}
-		socketsSliderStep = f
+		socketsCount = f
 	}
 
 	return container.NewGridWithColumns(2,

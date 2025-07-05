@@ -1,21 +1,23 @@
 package scanner
 
 import (
+	"fmt"
 	"github.com/FDUTCH/bedrock_scanner/message"
+	"io"
 	"log/slog"
+	"math"
 	"net"
 	"net/netip"
-	"strconv"
-	"strings"
+	"sync"
 )
 
 type Scanner struct {
 	net.PacketConn
 	limiter Limiter
-	logger  *slog.Logger
+	out     io.StringWriter
 }
 
-func NewScanner(limiter Limiter, logger *slog.Logger) *Scanner {
+func NewScanner(limiter Limiter, out io.StringWriter) *Scanner {
 	if limiter == nil {
 		limiter = NonLimiter{}
 	}
@@ -28,7 +30,7 @@ func NewScanner(limiter Limiter, logger *slog.Logger) *Scanner {
 	s := &Scanner{
 		limiter:    limiter,
 		PacketConn: conn,
-		logger:     logger,
+		out:        out,
 	}
 
 	go s.listen()
@@ -37,23 +39,24 @@ func NewScanner(limiter Limiter, logger *slog.Logger) *Scanner {
 }
 
 func (s *Scanner) ScanRange(r netip.Prefix, port uint16) {
-	startAddress, ok := parseIp(r.Addr().String())
-	if !ok {
-		return
-	}
-	startAddress.port = port
-
-	mask, _ := strconv.Atoi(strings.Split(r.String(), "/")[1])
-
-	s.scan(startAddress, subIPs(mask))
+	s.Scan(parsePrefix(r, port))
 }
 
-func (s *Scanner) scan(addr *address, r int) {
+func (s *Scanner) Scan(addr Address, r int) {
+	if r > math.MaxUint32 {
+		r = math.MaxUint32
+	}
+
 	msg := message.NewPingSeq()
-	for i := range uint32(r) {
+	for range uint32(r) {
+		_, err := s.WriteTo(msg, addr.Udp())
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
 		s.limiter.Limit()
-		addr.host += i
-		_, _ = s.WriteTo(msg, addr.Udp())
+		addr.Host += 1
 
 		//correcting ping time.
 		if r%1000 == 0 {
@@ -62,24 +65,33 @@ func (s *Scanner) scan(addr *address, r int) {
 	}
 }
 
+func (s *Scanner) ScanSync(addr Address, r int, wg *sync.WaitGroup) {
+	go func() {
+		s.Scan(addr, r)
+		wg.Done()
+	}()
+}
+
 func (s *Scanner) listen() {
-
-	buff := make([]byte, 1492)
-
-	pong := &message.Pong{}
+	var (
+		buff = make([]byte, 1492)
+		pong = new(message.Pong)
+	)
 
 	for {
 		n, addr, err := s.ReadFrom(buff)
 		if err != nil {
 			return
 		}
+
 		if n == 0 || buff[0] != 0x1c {
-			s.logger.Error("non-pong packet found", "ID", buff[0], "address", addr)
+			s.out.WriteString(fmt.Sprintf("non-pong packet found ID=%d address=%s", buff[0], addr.String()))
 			continue
 		}
+
 		if err := pong.UnmarshalBinary(buff[1:n]); err != nil {
 			slog.Error(err.Error())
 		}
-		s.logger.Info(string(pong.Data), "address", addr)
+		s.out.WriteString(fmt.Sprintf(string(pong.Data)+" address=%s", addr))
 	}
 }

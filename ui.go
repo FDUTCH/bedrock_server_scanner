@@ -1,11 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/FDUTCH/bedrock_scanner/scanner"
-	"io"
+	"unicode"
 )
 
 func AddMainContents(w fyne.Window) {
@@ -18,16 +19,18 @@ func AddMainContents(w fyne.Window) {
 
 func NewSettingsScreen(w fyne.Window) fyne.CanvasObject {
 	settings := scanner.Settings{}
+
 	return container.NewVBox(
-		// source selector.
-		widget.NewLabel("Source Settings"),
 		NewSourceSelector(&settings, w),
-		widget.NewLabel("Performance Settings"),
 		NewPerformanceSetup(&settings),
+		NewScanMenu(&settings),
+		NewOutPut(&settings),
+		widget.NewSeparator(),
+		NewSourceFileGenerator(w),
 	)
 }
 
-func NewLogWindow(name string) io.StringWriter {
+func NewLogWindow(name string) *widget.TextGrid {
 	logGrid := widget.NewTextGrid()
 	logGrid.Scroll = fyne.ScrollVerticalOnly
 	logGrid.ShowWhitespace = true
@@ -37,16 +40,14 @@ func NewLogWindow(name string) io.StringWriter {
 	w.SetContent(logGrid)
 	w.SetFixedSize(true)
 	w.Show()
-	return &writer{grid: logGrid}
+	return logGrid
 }
 
-type writer struct {
-	grid *widget.TextGrid
-}
-
-func (w *writer) WriteString(s string) (n int, err error) {
-	fyne.Do(func() {
-		w.grid.Append(s)
-	})
-	return len(s), nil
+func checkNumber(s string) error {
+	for _, char := range s {
+		if !unicode.IsNumber(char) {
+			return fmt.Errorf("should contain only numbers")
+		}
+	}
+	return nil
 }
