@@ -6,3 +6,6 @@ feel free to contribute
 
 how it looks like:
 ![изображение](https://github.com/user-attachments/assets/a458dc34-778d-448e-a78d-540b63d55208)
+
+
+to scann the whole web for bedrock servers set source to: 0.0.0.0/0
