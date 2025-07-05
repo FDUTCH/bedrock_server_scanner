@@ -1,11 +1,23 @@
-package main
+package gui
 
 import (
 	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/widget"
 	"github.com/FDUTCH/bedrock_scanner/scanner"
 )
+
+func Run() {
+	a := app.New()
+	w := a.NewWindow("Scanner")
+
+	w.Resize(fyne.NewSize(400, 300))
+
+	AddMainContents(w)
+
+	w.ShowAndRun()
+}
 
 func AddMainContents(w fyne.Window) {
 	w.SetContent(

@@ -41,8 +41,8 @@ func (s Settings) Scan() {
 }
 
 func handlePrefix(scanners []*Scanner, prefix netip.Prefix, port int) {
-	var wg sync.WaitGroup
 	baseAddr, r := parsePrefix(prefix, uint16(port))
+	var wg sync.WaitGroup
 	wg.Add(len(scanners))
 	taskCount := r / len(scanners)
 	rest := r % len(scanners)

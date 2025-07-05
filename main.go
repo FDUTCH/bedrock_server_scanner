@@ -1,17 +1,14 @@
 package main
 
 import (
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
+	"github.com/FDUTCH/bedrock_scanner/cli"
+	"github.com/FDUTCH/bedrock_scanner/gui"
+	"os"
 )
 
 func main() {
-	a := app.New()
-	w := a.NewWindow("Scanner")
-
-	w.Resize(fyne.NewSize(400, 300))
-
-	AddMainContents(w)
-
-	w.ShowAndRun()
+	if len(os.Args) > 1 {
+		cli.Run()
+	}
+	gui.Run()
 }
