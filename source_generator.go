@@ -47,7 +47,7 @@ func NewSourceFileGenerator(w fyne.Window) fyne.CanvasObject {
 	return container.NewVBox(
 		container.NewGridWithColumns(2,
 			asNumberEntry, outputFileEntry,
-			widget.NewLabel("as number"), widget.NewLabel("output file"),
+			widget.NewLabel("AS number"), widget.NewLabel("output file"),
 			generateButton, generateActivity,
 		),
 	)
