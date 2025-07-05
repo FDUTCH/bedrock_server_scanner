@@ -6,6 +6,7 @@ import (
 	"github.com/FDUTCH/bedrock_scanner/scanner"
 	"log/slog"
 	"os"
+	"time"
 )
 
 var (
@@ -44,4 +45,5 @@ func Run() {
 		Out:              output{},
 	}
 	settings.Scan()
+	time.Sleep(time.Second)
 }
