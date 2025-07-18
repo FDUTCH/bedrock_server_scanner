@@ -35,20 +35,20 @@ func NewScanMenu(settings *scanner.Settings) fyne.CanvasObject {
 
 	scanButton.OnTapped = func() {
 		set := *settings
-		//content.Objects[1] = scanActivity
-		//scanActivity.Start()
-		//scanActivity.Show()
-		//content.Refresh()
+		content.Objects[1] = scanActivity
+		scanActivity.Start()
+		scanActivity.Show()
+		content.Refresh()
 		go func() {
 			set.Scan()
-			/*
-				fyne.Do(func() {
-					scanActivity.Stop()
-					scanActivity.Hide()
-					content.Objects[1] = scanButton
-					content.Refresh()
-				})
-			*/
+
+			fyne.Do(func() {
+				scanActivity.Stop()
+				scanActivity.Hide()
+				content.Objects[1] = scanButton
+				content.Refresh()
+			})
+
 		}()
 	}
 
